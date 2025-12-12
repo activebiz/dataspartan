@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./books.db"
     debug: bool = True
+    port: int = 8000
 
 
 settings = Settings()

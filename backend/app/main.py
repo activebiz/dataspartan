@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routes import router
+from app.init_db import init_db, seed_db
 
 app = FastAPI(title="Book Catalog API", debug=settings.debug)
 
@@ -17,6 +18,15 @@ app.add_middleware(
 app.include_router(router, tags=["catalog"])
 
 
+@app.on_event("startup")
+def on_startup():
+    init_db()
+    try:
+        seed_db()
+    except Exception:
+        pass
+
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
@@ -25,3 +35,14 @@ async def health_check():
 @app.get("/")
 async def root():
     return {"message": "Book Catalog API", "version": "1.0.0"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=int(settings.port),
+        reload=False,
+    )
